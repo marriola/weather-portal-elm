@@ -1,0 +1,21 @@
+module Dashboard.ViewMain exposing (view)
+
+import MainTypes exposing (..)
+
+import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput, onClick)
+
+
+view : Model -> Html Msg
+view model =
+  let
+    isMetric = if model.dashboard.scale == Metric then "selected" else ""
+    isUS = if model.dashboard.scale == US then "selected" else ""
+  in
+    <div class="dashboard">
+      <input type="text" value={model.dashboard.search} onInput={TagDashboardMsg << Change} />
+      <button type="button" onClick={TagContentMsg Search}>Search</button>
+      <label><input type="radio" name="scale" value={toString Metric} checked={isMetric} onClick={TagDashboardMsg (SelectScale Metric)} /> C</label>
+      <label><input type="radio" name="scale" value={toString US} checked={isUS} onClick={TagDashboardMsg (SelectScale US)} /> F</label>
+    </div>

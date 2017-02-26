@@ -1,0 +1,64 @@
+module ContentPanel.ViewMain exposing (view)
+
+import MainTypes exposing (..)
+import Decoders.Conditions exposing (Conditions, decodeConditions)
+
+import Http exposing (..)
+import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a, tr)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput, onClick)
+
+import String
+import Weather
+import Util exposing (..)
+import HtmlHelper exposing (Row, makeTable, makeRow)
+import Indicators
+
+view : Model -> Html Msg
+view model =
+  <div class="content">
+    <div class="panel">
+      {viewContent model model.content}
+    </div>
+  </div>
+
+viewContent : Model -> ContentModel -> Html Msg
+viewContent parentModel model =
+  case model.status of
+    Loaded ->
+      conditions parentModel.dashboard.scale model.conditions
+
+    Loading ->
+      <div class="spinner"></div>
+
+    Failed msg ->
+      <div class="error">{=msg}</div>
+
+conditions : Scale -> Maybe Conditions -> Html Msg
+conditions scale c =
+  case c of
+    Just conditions ->
+      makeTable
+        makeRow
+        filterRow
+        [conditions.display_location.full, conditions.weather]
+        [
+          ("Temperature", (selectScale scale Indicators.degree (toString conditions.temp_c) (toString conditions.temp_f))),
+          ("Humidity", conditions.relative_humidity),
+          ("Wind", (selectScale scale Indicators.wind (toString conditions.wind_kph) (toString conditions.wind_mph)) ++ " " ++ conditions.wind_dir),
+          ("Dewpoint", (selectScale scale Indicators.degree (toString conditions.dewpoint_c) (toString conditions.dewpoint_f))),
+          ("Heat Index", (selectScale scale Indicators.degree conditions.heat_index_c conditions.heat_index_f)),
+          ("Wind Chill", (selectScale scale Indicators.degree conditions.windchill_c conditions.windchill_f)),
+          ("Feels Like", (selectScale scale Indicators.degree conditions.feelslike_c conditions.feelslike_f)),
+          ("Visibility", (selectScale scale Indicators.distance conditions.visibility_km conditions.visibility_mi))
+        ]
+
+    Nothing ->
+      text "Nothing yet"
+
+filterRow : Row -> Bool
+filterRow row =
+  let
+    (title, value) = row
+  in
+    not <| String.startsWith "NA" value

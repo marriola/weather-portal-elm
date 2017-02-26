@@ -1,0 +1,59 @@
+//@import '~bootstrap/scss/bootstrap.scss';
+
+body {
+  background-color: black;
+  color: #ddd;
+  margin: 0px;
+}
+
+.content {
+  padding: 3px;
+}
+
+input, button {
+  color: black;
+}
+
+table .header {
+  font-weight: bold;
+}
+
+.header.center {
+  text-align: center;
+}
+
+.header.left {
+  padding-right: 5px;
+}
+
+.dashboard {
+  border-bottom: 1px solid #ddd;
+  padding: 5px 5px 10px 5px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  background: url('../images/ajax-loader.gif');
+}
+
+.error {
+  border: 1px solid red;
+  color: red;
+  padding: 2px;
+}
+
+.panel {
+  display: inline-block;
+  background-color: #555;
+  margin: 3px;
+  padding: 3px;
+
+  tr:nth-child(even) > td {
+    background-color: #777;
+  }
+
+  tr:nth-child(odd) > td {
+    background-color: #444;
+  }
+}

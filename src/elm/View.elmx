@@ -1,0 +1,17 @@
+module View exposing (view)
+
+import MainTypes exposing (..)
+import Dashboard.View
+import ContentPanel.View
+
+import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput, onClick)
+import String
+
+view : Model -> Html Msg
+view model =
+  <div>
+    {Dashboard.View.view model}
+    {ContentPanel.View.view model}
+  </div>
