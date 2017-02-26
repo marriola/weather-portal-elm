@@ -1,6 +1,6 @@
 module Util exposing (..)
 
-import MainTypes
+import MainTypes exposing (..)
 import Http exposing (..)
 import Maybe exposing (..)
 import List
@@ -19,7 +19,13 @@ giveDefault x =
     Just s -> s
     Nothing -> ""
 
-isNotEmpty : Maybe String -> Bool
+isEmpty : Maybe a -> Bool
+isEmpty s =
+  case s of
+    Just _ -> False
+    Nothing -> True
+
+isNotEmpty : Maybe a -> Bool
 isNotEmpty s =
   case s of
     Just _ -> True
@@ -46,11 +52,11 @@ errorToString err =
     BadUrl msg ->
       msg
 
-selectScale : MainTypes.Scale -> (MainTypes.Scale -> String) -> String -> String -> String
+selectScale : Scale -> (Scale -> String) -> String -> String -> String
 selectScale scale indicator metric us =
   (case scale of
-    MainTypes.Metric ->
+    Metric ->
       metric
-    MainTypes.US ->
+    US ->
       us
-  ) ++ indicator scale
+  ) ++ " " ++ indicator scale

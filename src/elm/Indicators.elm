@@ -6,22 +6,22 @@ degree : Scale -> String
 degree scale =
   case scale of
     Metric ->
-      " ºC"
+      "ºC"
     US ->
-      " ºF"
+      "ºF"
 
 distance : Scale -> String
 distance scale =
   case scale of
     Metric ->
-      " km"
+      "km"
     US ->
-      " mi"
+      "mi"
 
 wind : Scale -> String
 wind scale =
   case scale of
     Metric ->
-      " kph"
+      "kph"
     US ->
-      " mph"
+      "mph"

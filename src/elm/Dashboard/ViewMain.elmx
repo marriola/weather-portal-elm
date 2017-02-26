@@ -14,8 +14,10 @@ view model =
     isUS = if model.dashboard.scale == US then "selected" else ""
   in
     <div class="dashboard">
+      <a href="https://github.com/marriola/weather-portal-elm" class="github" target="_blank"></a>
+
       <input type="text" value={model.dashboard.search} onInput={TagDashboardMsg << Change} />
       <button type="button" onClick={TagContentMsg Search}>Search</button>
-      <label><input type="radio" name="scale" value={toString Metric} checked={isMetric} onClick={TagDashboardMsg (SelectScale Metric)} /> C</label>
-      <label><input type="radio" name="scale" value={toString US} checked={isUS} onClick={TagDashboardMsg (SelectScale US)} /> F</label>
+      <label><input type="radio" name="scale" value={toString Metric} checked={isMetric} onClick={TagDashboardMsg (SelectScale Metric)} /> Metric</label>
+      <label><input type="radio" name="scale" value={toString US} checked={isUS} onClick={TagDashboardMsg (SelectScale US)} /> US</label>
     </div>

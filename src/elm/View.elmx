@@ -3,6 +3,8 @@ module View exposing (view)
 import MainTypes exposing (..)
 import Dashboard.View
 import ContentPanel.View
+import SearchResults.View
+import ServiceError.View
 
 import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a)
 import Html.Attributes exposing (..)
@@ -14,4 +16,6 @@ view model =
   <div>
     {Dashboard.View.view model}
     {ContentPanel.View.view model}
+    {SearchResults.View.view model}
+    {ServiceError.View.view model}
   </div>

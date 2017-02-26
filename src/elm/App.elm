@@ -2,7 +2,7 @@ module App exposing (..)
 
 import Maybe exposing (..)
 import Http exposing (..)
-import Decoders.Conditions exposing (Conditions, decodeConditions)
+import Decoders.Conditions exposing (Conditions)
 
 import MainTypes exposing (..)
 import View exposing (view)
@@ -17,9 +17,11 @@ init =
         scale = US
       },
       content = {
+        status = Loaded,
         place = "",
         conditions = Nothing,
-        status = Loaded
+        results = Nothing,
+        error = Nothing
       }
     }, Cmd.none )
 

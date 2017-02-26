@@ -1,7 +1,7 @@
 module ContentPanel.ViewMain exposing (view)
 
 import MainTypes exposing (..)
-import Decoders.Conditions exposing (Conditions, decodeConditions)
+import Decoders.Conditions exposing (Conditions, SearchResult, WeatherResponse)
 
 import Http exposing (..)
 import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a, tr)
@@ -11,16 +11,22 @@ import Html.Events exposing (onInput, onClick)
 import String
 import Weather
 import Util exposing (..)
-import HtmlHelper exposing (Row, makeTable, makeRow)
+import HtmlHelper exposing (Row, makeTable, makeRow, visible)
 import Indicators
 
 view : Model -> Html Msg
 view model =
-  <div class="content">
-    <div class="panel">
-      {viewContent model model.content}
+  let
+    classNames = [
+      Just "content",
+      visible (hasContent model.content)
+    ]
+  in
+    <div class={joinClasses classNames}>
+      <div class="panel">
+        {viewContent model model.content}
+      </div>
     </div>
-  </div>
 
 viewContent : Model -> ContentModel -> Html Msg
 viewContent parentModel model =
@@ -33,6 +39,12 @@ viewContent parentModel model =
 
     Failed msg ->
       <div class="error">{=msg}</div>
+
+hasContent : ContentModel -> Bool
+hasContent model =
+  case model.conditions of
+    Just _ -> True
+    Nothing -> False
 
 conditions : Scale -> Maybe Conditions -> Html Msg
 conditions scale c =
@@ -54,7 +66,7 @@ conditions scale c =
         ]
 
     Nothing ->
-      text "Nothing yet"
+      <div></div>
 
 filterRow : Row -> Bool
 filterRow row =

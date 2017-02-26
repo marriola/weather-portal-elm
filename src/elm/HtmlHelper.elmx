@@ -33,3 +33,7 @@ makeRow row =
       <td class="header left">{=title}</td>
       <td>{=content}</td>
     </tr>
+
+visible : Bool -> Maybe String
+visible condition =
+  if condition then Nothing else Just "hidden"

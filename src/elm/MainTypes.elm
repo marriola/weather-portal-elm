@@ -2,9 +2,12 @@ module MainTypes exposing (..)
 
 import Http exposing (..)
 
-import Decoders.Conditions exposing (Conditions)
+import Decoders.Conditions exposing (Conditions, SearchResult, WeatherResponse, WeatherResponseMain, WeatherError)
 
-type Status = Loaded | Loading | Failed String
+type Status
+  = Loaded
+  | Loading
+  | Failed String
 
 type DashboardMsg
   = Change String
@@ -12,7 +15,8 @@ type DashboardMsg
 
 type ContentMsg
   = Search
-  | UpdateConditions (Result Http.Error Conditions)
+  | UpdateConditions (Result Http.Error WeatherResponse)
+  | SelectCity String
 
 type Msg = TagDashboardMsg DashboardMsg | TagContentMsg ContentMsg
 
@@ -24,7 +28,9 @@ type alias DashboardModel = {
 type alias ContentModel = {
   place : String,
   conditions : Maybe Conditions,
-  status : Status
+  results : Maybe (List SearchResult),
+  status : Status,
+  error : Maybe WeatherError
 }
 
 type alias Model = {

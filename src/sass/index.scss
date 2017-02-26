@@ -6,6 +6,26 @@ body {
   margin: 0px;
 }
 
+a {
+  color: #00dd00;
+}
+
+a:visited {
+  color: #dd00dd;
+}
+
+a:active {
+  color: #dd0000;
+}
+
+.github {
+  float: right;
+  width: 32px;
+  height: 32px;
+  background-image: url(../images/github.png);
+  background-size: 32px;
+}
+
 .content {
   padding: 3px;
 }
@@ -45,7 +65,7 @@ table .header {
 
 .panel {
   display: inline-block;
-  background-color: #555;
+  background-color: #444;
   margin: 3px;
   padding: 3px;
 
@@ -54,6 +74,10 @@ table .header {
   }
 
   tr:nth-child(odd) > td {
-    background-color: #444;
+    background-color: #555;
   }
+}
+
+.hidden {
+  display: none;
 }

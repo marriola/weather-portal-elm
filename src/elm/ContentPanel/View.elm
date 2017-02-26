@@ -4,7 +4,7 @@ import ContentPanel.ViewMain
 
 import Weather
 import MainTypes exposing (..)
-import Decoders.Conditions exposing (Conditions, decodeConditions)
+import Decoders.Conditions exposing (WeatherResponse, Conditions, weatherResponse)
 import Util exposing (..)
 
 import Http exposing (..)
@@ -25,19 +25,40 @@ update msg parentModel model =
         status = Loading
       }, getConditions parentModel.dashboard.search)
 
-    UpdateConditions c ->
-      case c of
+    UpdateConditions resp ->
+      case resp of
         Ok result ->
-          ({ model | conditions = Just result, status = Loaded }, Cmd.none)
+          let
+            (beforeError, cmd) =
+              ({ model |
+                conditions = result.current_observation,
+                results = result.response.results,
+                status = Loaded,
+                error = Nothing
+              }, Cmd.none)
+          in
+            case result.response.error of
+              Just err ->
+                ({ beforeError | error = Just err }, cmd)
+              Nothing ->
+                (beforeError, cmd)
         Err e ->
           ({ model |
             conditions = Nothing,
+            results = Nothing,
             status = Failed (errorToString e)
           }, Cmd.none)
+
+    SelectCity zmw ->
+      ({ model |
+        conditions = Nothing,
+        results = Nothing,
+        status = Loading
+      }, getConditions zmw)
 
 getConditions : String -> Cmd Msg
 getConditions place =
   let
     url = Weather.query "conditions" place
   in
-    Http.send (TagContentMsg << UpdateConditions) (Http.get url decodeConditions)
+    Http.send (TagContentMsg << UpdateConditions) (Http.get url weatherResponse)

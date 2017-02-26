@@ -1,7 +1,18 @@
-module Decoders.Conditions exposing (Conditions, decodeConditions)
+module Decoders.Conditions exposing (WeatherResponse, WeatherResponseMain, Conditions, SearchResult, WeatherError, weatherResponse)
 
-import Json.Decode exposing (Decoder, int, float, string, field)
+import Json.Decode exposing (Decoder, field, float, int, list, string, map, maybe, map2, map3, map4, map5, null, oneOf)
 import Json.Decode.Pipeline exposing (decode, required, optional)
+
+type alias SearchResult = {
+  name : String,
+  city : String,
+  state : String,
+  country : String,
+  country_iso3166 : String,
+  country_name : String,
+  zmw : String,
+  l : String
+}
 
 type alias Conditions = {
   display_location : DisplayLocation,
@@ -47,26 +58,43 @@ type alias Features = {
   conditions : Int
 }
 
-type alias WeatherResponse = {
-  version : String,
-  termsofService : String,
-  features : Features
+type alias WeatherError = {
+  typePrime : String,
+  description : String
 }
 
-decodeFeatures : Decoder Features
-decodeFeatures =
+type alias WeatherResponseMain = {
+  version : String,
+  termsofService : String,
+  features : Features,
+  results : Maybe (List SearchResult),
+  error : Maybe WeatherError
+}
+
+type alias WeatherResponse = {
+  response : WeatherResponseMain,
+  current_observation : Maybe Conditions
+}
+
+features : Decoder Features
+features =
   decode Features
     |> optional "conditions" int 0
 
-decodeWeatherResponse : Decoder WeatherResponse
-decodeWeatherResponse =
-  decode WeatherResponse
-    |> required "version" string
-    |> required "termsofService" string
-    |> required "features" decodeFeatures
+searchResult : Decoder SearchResult
+searchResult =
+  decode SearchResult
+    |> required "name" string
+    |> required "city" string
+    |> required "state" string
+    |> required "country" string
+    |> required "country_iso3166" string
+    |> required "country_name" string
+    |> required "zmw" string
+    |> required "l" string
 
-decodeDisplayLocation : Decoder DisplayLocation
-decodeDisplayLocation =
+displayLocation : Decoder DisplayLocation
+displayLocation =
   decode DisplayLocation
     |> required "full" string
     |> required "city" string
@@ -81,10 +109,10 @@ decodeDisplayLocation =
     |> required "longitude" string
     |> required "elevation" string
 
-decodeCurrentObservation : Decoder Conditions
-decodeCurrentObservation =
+currentObservation : Decoder Conditions
+currentObservation =
   decode Conditions
-    |> required "display_location" decodeDisplayLocation
+    |> required "display_location" displayLocation
     |> required "weather" string
     |> required "temp_f" float
     |> required "temp_c" float
@@ -108,4 +136,25 @@ decodeCurrentObservation =
     |> required "precip_today_metric" string
 
 decodeConditions : Decoder Conditions
-decodeConditions = field "current_observation" decodeCurrentObservation
+decodeConditions = field "current_observation" currentObservation
+
+weatherError : Decoder WeatherError
+weatherError =
+  decode WeatherError
+    |> required "type" string
+    |> required "description" string
+
+weatherResponseMain : Decoder WeatherResponseMain
+weatherResponseMain =
+  map5 WeatherResponseMain
+    (field "version" string)
+    (field "termsofService" string)
+    (field "features" features)
+    (maybe (field "results" (list searchResult)))
+    (maybe (field "error" weatherError))
+
+weatherResponse : Decoder WeatherResponse
+weatherResponse =
+  map2 WeatherResponse
+    (field "response" weatherResponseMain)
+    (maybe (field "current_observation" currentObservation))
