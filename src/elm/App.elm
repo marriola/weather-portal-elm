@@ -18,7 +18,7 @@ init =
       },
       content = {
         status = Loaded,
-        place = "",
+        places = [],
         conditions = Nothing,
         results = Nothing,
         error = Nothing

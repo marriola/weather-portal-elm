@@ -60,3 +60,11 @@ selectScale scale indicator metric us =
     US ->
       us
   ) ++ " " ++ indicator scale
+
+choose : Bool -> String -> String
+choose condition s =
+  if condition then "" else s
+
+orNothing : Bool -> String -> Maybe String
+orNothing condition s =
+  if condition then Nothing else Just s

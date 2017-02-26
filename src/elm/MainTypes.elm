@@ -17,6 +17,7 @@ type ContentMsg
   = Search
   | UpdateConditions (Result Http.Error WeatherResponse)
   | SelectCity String
+  | LoadCity (String, String, String)
 
 type Msg = TagDashboardMsg DashboardMsg | TagContentMsg ContentMsg
 
@@ -26,8 +27,8 @@ type alias DashboardModel = {
 }
 
 type alias ContentModel = {
-  place : String,
   conditions : Maybe Conditions,
+  places : List Conditions,
   results : Maybe (List SearchResult),
   status : Status,
   error : Maybe WeatherError

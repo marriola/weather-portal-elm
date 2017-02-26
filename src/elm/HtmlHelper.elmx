@@ -3,6 +3,7 @@ module HtmlHelper exposing (..)
 import MainTypes exposing (Msg)
 import Html exposing (Html, table, tr, td)
 import Html.Attributes exposing (..)
+import Util exposing (orNothing)
 import List
 
 makeTable : (Row -> Html Msg) -> (Row -> Bool) -> List String -> List Row -> Html Msg
@@ -36,4 +37,4 @@ makeRow row =
 
 visible : Bool -> Maybe String
 visible condition =
-  if condition then Nothing else Just "hidden"
+  orNothing condition "hidden"

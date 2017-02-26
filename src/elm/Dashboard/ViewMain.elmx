@@ -5,13 +5,14 @@ import MainTypes exposing (..)
 import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
-
+import Util exposing (choose)
+import Decoders.Conditions exposing (Conditions)
 
 view : Model -> Html Msg
 view model =
   let
-    isMetric = if model.dashboard.scale == Metric then "selected" else ""
-    isUS = if model.dashboard.scale == US then "selected" else ""
+    isMetric = choose (model.dashboard.scale == Metric) "selected"
+    isUS = choose (model.dashboard.scale == US) "selected"
   in
     <div class="dashboard">
       <a href="https://github.com/marriola/weather-portal-elm" class="github" target="_blank"></a>
@@ -20,4 +21,23 @@ view model =
       <button type="button" onClick={TagContentMsg Search}>Search</button>
       <label><input type="radio" name="scale" value={toString Metric} checked={isMetric} onClick={TagDashboardMsg (SelectScale Metric)} /> Metric</label>
       <label><input type="radio" name="scale" value={toString US} checked={isUS} onClick={TagDashboardMsg (SelectScale US)} /> US</label>
+
+      {(nameplates model.content.places)}
     </div>
+
+nameplates : List Conditions -> Html Msg
+nameplates places =
+  <div>
+    {:List.map makeNameplate places}
+  </div>
+
+makeNameplate : Conditions -> Html Msg
+makeNameplate c =
+  --let
+    --(city, state, country) = c.display_location
+  --in
+    <span class="panel">
+      <a href="#" onClick={TagContentMsg (LoadCity (c.display_location.city, c.display_location.state, c.display_location.country))}>
+        {=c.display_location.full}
+      </a>
+    </span>

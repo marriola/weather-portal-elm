@@ -65,16 +65,16 @@ table .header {
 
 .panel {
   display: inline-block;
-  background-color: #444;
+  background-color: #224;
   margin: 3px;
   padding: 3px;
 
   tr:nth-child(even) > td {
-    background-color: #777;
+    background-color: #555;
   }
 
   tr:nth-child(odd) > td {
-    background-color: #555;
+    background-color: #333;
   }
 }
 
