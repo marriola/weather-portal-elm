@@ -21,7 +21,8 @@ init =
         places = [],
         conditions = Nothing,
         results = Nothing,
-        error = Nothing
+        error = Nothing,
+        nextKey = 1
       }
     }, Cmd.none )
 
@@ -31,15 +32,21 @@ update msg model =
   case msg of
     TagContentMsg cmsg ->
       let
-        (newContent, msg) = ContentPanel.View.update cmsg model model.content
+        (newContent, msgOut) = ContentPanel.View.update msg model model.content
+        primaryModel = { model | content = newContent }
+        (newDashboard, _) = Dashboard.View.update msg model model.dashboard
+        finalModel = { primaryModel | dashboard = newDashboard }
       in
-        ({ model | content = newContent }, msg)
+        (finalModel, msgOut)
 
     TagDashboardMsg dmsg ->
       let
-        (newDashboard, msg) = Dashboard.View.update dmsg model model.dashboard
+        (newDashboard, msgOut) = Dashboard.View.update msg model model.dashboard
+        primaryModel = { model | dashboard = newDashboard }
+        (newContent, _) = ContentPanel.View.update msg model model.content
+        finalModel = { primaryModel | content = newContent }
       in
-        ({ model | dashboard = newDashboard }, msg)
+        (finalModel, msgOut)
 
 subscriptions : Model -> Sub Msg
 subscriptions model =

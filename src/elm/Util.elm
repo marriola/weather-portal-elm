@@ -13,6 +13,10 @@ joinClasses list =
     |> List.map giveDefault
     |> String.join " "
 
+takeNonEmpty : List String -> List String
+takeNonEmpty list =
+  List.filter (\x -> (String.length x) >= 1) list
+
 giveDefault : Maybe String -> String
 giveDefault x =
   case x of

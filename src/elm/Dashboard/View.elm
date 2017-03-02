@@ -8,11 +8,17 @@ import Html exposing (Html)
 view : Model -> Html Msg
 view model = Dashboard.ViewMain.view model
 
-update : DashboardMsg -> Model -> DashboardModel -> (DashboardModel, Cmd Msg)
+update : Msg -> Model -> DashboardModel -> (DashboardModel, Cmd Msg)
 update msg parentModel model =
   ((case msg of
-      Change str ->
+      TagDashboardMsg (Change str) ->
         { model | search = str }
-      SelectScale scale ->
+      TagDashboardMsg (SelectScale scale) ->
         { model | scale = scale }
+      TagContentMsg Search ->
+        { model | search = "" }
+      TagDashboardMsg Reset ->
+        { model | search = "" }
+      _ ->
+        model
     ), Cmd.none)

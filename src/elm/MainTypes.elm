@@ -12,10 +12,13 @@ type Status
 type DashboardMsg
   = Change String
   | SelectScale Scale
+  | Reset
 
 type ContentMsg
   = Search
-  | UpdateConditions (Result Http.Error WeatherResponse)
+  | UpdateConditions (Maybe Int) (Result Http.Error WeatherResponse)
+  | CloseConditions
+  | RefreshConditions Int
   | SelectCity String
   | LoadCity (String, String, String)
 
@@ -31,7 +34,8 @@ type alias ContentModel = {
   places : List Conditions,
   results : Maybe (List SearchResult),
   status : Status,
-  error : Maybe WeatherError
+  error : Maybe WeatherError,
+  nextKey : Int
 }
 
 type alias Model = {

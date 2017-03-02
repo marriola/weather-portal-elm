@@ -15,23 +15,34 @@ import Html.Events exposing (onInput, onClick)
 view : Model -> Html Msg
 view model = ContentPanel.ViewMain.view model
 
-update : ContentMsg -> Model -> ContentModel -> (ContentModel, Cmd Msg)
+update : Msg -> Model -> ContentModel -> (ContentModel, Cmd Msg)
 update msg parentModel model =
   case msg of
-    Search ->
+    TagContentMsg Search ->
       search parentModel model
 
-    UpdateConditions resp ->
-      updateConditions parentModel model resp
+    TagContentMsg (UpdateConditions key resp) ->
 
-    SelectCity zmw ->
+      updateConditions parentModel model key resp
+
+    TagContentMsg CloseConditions ->
+      ({ model | conditions = Nothing }, Cmd.none)
+
+    TagContentMsg (RefreshConditions key) ->
+      case (findConditions (byKey key) model.places) of
+        Just place ->
+          ({ model | status = Loading }, refreshConditions key place.display_location.full)
+        Nothing ->
+          (model, Cmd.none)
+
+    TagContentMsg (SelectCity zmw) ->
       ({ model |
         conditions = Nothing,
         results = Nothing,
         status = Loading
       }, getConditions zmw)
 
-    LoadCity coordinates ->
+    TagContentMsg (LoadCity coordinates) ->
       let
         conditions = findConditions (byLocation coordinates) model.places
       in
@@ -41,31 +52,8 @@ update msg parentModel model =
           Nothing ->
             (model, Cmd.none)
 
-updateConditions : Model -> ContentModel -> Result Http.Error WeatherResponse -> (ContentModel, Cmd Msg)
-updateConditions parentModel model resp =
-  case resp of
-    Ok result ->
-      let
-        (beforeError, cmd) =
-          ({ model |
-            places = updatePlaces model.places result.current_observation,
-            conditions = result.current_observation,
-            results = result.response.results,
-            status = Loaded,
-            error = Nothing
-          }, Cmd.none)
-      in
-        case result.response.error of
-          Just err ->
-            ({ beforeError | error = Just err }, cmd)
-          Nothing ->
-            (beforeError, cmd)
-    Err e ->
-      ({ model |
-        conditions = Nothing,
-        results = Nothing,
-        status = Failed (errorToString e)
-      }, Cmd.none)
+    _ ->
+      (model, Cmd.none)
 
 
 search : Model -> ContentModel -> (ContentModel, Cmd Msg)
@@ -86,14 +74,93 @@ search parentModel model =
           status = Loading
         }, getConditions parentModel.dashboard.search)
 
+addKey : ContentModel -> ContentModel
+addKey model =
+  { model |
+    nextKey = model.nextKey + 1,
+    conditions = addKeyInternal model.nextKey model.conditions
+  }
 
-updatePlaces : List Conditions -> Maybe Conditions -> List Conditions
-updatePlaces places result =
-  case result of
-    Just c ->
-      places ++ [c]
+addKeyInternal : Int -> Maybe Conditions -> Maybe Conditions
+addKeyInternal key maybeConditions =
+  case maybeConditions of
+    Just conditions ->
+      Just { conditions | key = key }
+    Nothing ->
+      Nothing
+
+updateConditions : Model -> ContentModel -> Maybe Int -> Result Http.Error WeatherResponse -> (ContentModel, Cmd Msg)
+updateConditions parentModel model maybeKey resp =
+  case resp of
+    Ok result ->
+      let
+        addingNew =
+          case result.current_observation of
+            Just _ ->
+              case maybeKey of
+                Just _ ->
+                  False
+                Nothing ->
+                  True
+            Nothing ->
+              False
+
+        newPlaces =
+          case result.current_observation of
+            Just conditions ->
+              case maybeKey of
+                Just key ->
+                  refreshPlace model.places key conditions
+                Nothing ->
+                  model.places ++ [conditions]
+
+            Nothing ->
+              model.places
+
+        nextModel =
+          { model |
+              places = newPlaces,
+              conditions = result.current_observation,
+              results = result.response.results,
+              status = Loaded,
+              error = result.response.error
+          }
+      in
+        (if addingNew then
+          addKey nextModel
+        else
+          nextModel, Cmd.none)
+    Err e ->
+      ({ model |
+        conditions = Nothing,
+        results = Nothing,
+        status = Failed (errorToString e)
+      }, Cmd.none)
+
+updatePlaces : Maybe Int -> List Conditions -> Maybe Conditions -> List Conditions
+updatePlaces maybeKey places maybeResult =
+  case maybeResult of
+    Just conditions ->
+      case maybeKey of
+        Just key ->
+          refreshPlace places key conditions
+
+        Nothing ->
+          places ++ [conditions]
+
     Nothing ->
       places
+
+refreshPlace : List Conditions -> Int -> Conditions -> List Conditions
+refreshPlace places key conditions =
+  List.map (replacePlace key conditions) places
+
+replacePlace : Int -> Conditions -> Conditions -> Conditions
+replacePlace key conditions place =
+    if place.key == conditions.key then
+      conditions
+    else
+      place
 
 byName : String -> Conditions -> Bool
 byName name location =
@@ -105,6 +172,10 @@ byLocation (city, state, country) location =
     dl = location.display_location
   in
     (city, state, country) == (dl.city, dl.state, dl.country)
+
+byKey : Int -> Conditions -> Bool
+byKey key location =
+  location.key == key
 
 findConditions : (Conditions -> Bool) -> List Conditions -> Maybe Conditions
 findConditions predicate places =
@@ -119,9 +190,17 @@ findConditions predicate places =
       [] ->
         Nothing
 
+refreshConditions : Int -> String -> Cmd Msg
+refreshConditions key place =
+  getConditionsInternal (TagContentMsg << UpdateConditions (Just key)) place
+
 getConditions : String -> Cmd Msg
 getConditions place =
+  getConditionsInternal (TagContentMsg << UpdateConditions Nothing) place
+
+getConditionsInternal : (Result Error WeatherResponse -> Msg) -> String -> Cmd Msg
+getConditionsInternal msg place =
   let
     url = Weather.query "conditions" place
   in
-    Http.send (TagContentMsg << UpdateConditions) (Http.get url weatherResponse)
+    Http.send msg (Http.get url weatherResponse)

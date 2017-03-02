@@ -15,29 +15,27 @@ view model =
   let
     classNames = [
       Just "panel",
-      HtmlHelper.visible (isNotEmpty model.content.results)
+      visible (isNotEmpty model.content.results)
     ]
   in
-    <div class={joinClasses classNames}>
-      {(resultsList model.content.results)}
-    </div>
+    div [class (joinClasses classNames)] [
+      resultsList model.content.results
+    ]
 
 
 resultsList : Maybe (List SearchResult) -> Html Msg
 resultsList list =
   case list of
     Just results ->
-      <ul>
-        {:List.map makeItem results}
-      </ul>
+      ul [] <| List.map makeItem results
 
     Nothing ->
-      <ul></ul>
+      ul [] []
 
 makeItem : SearchResult -> Html Msg
 makeItem result =
-  <li>
-    <a href="#" onClick={TagContentMsg (SelectCity ("zmw:" ++ result.zmw))}>
-      {=(String.join ", " [result.city, result.state, result.country_name])}
-    </a>
-  </li>
+  li [] [
+    a [onClick <| TagContentMsg <| SelectCity ("zmw:" ++ result.zmw)] [
+      text (String.join ", " (takeNonEmpty [result.city, result.state, result.country_name]))
+    ]
+  ]

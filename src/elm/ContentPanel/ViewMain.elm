@@ -3,13 +3,11 @@ module ContentPanel.ViewMain exposing (view)
 import MainTypes exposing (..)
 import Decoders.Conditions exposing (Conditions, SearchResult, WeatherResponse)
 
-import Http exposing (..)
-import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a, tr)
+import Html exposing (Html, Attribute, label, text, div, span, input, button, ul, li, a, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
 
 import String
-import Weather
 import Util exposing (..)
 import HtmlHelper exposing (Row, makeTable, makeRow, visible)
 import Indicators
@@ -22,11 +20,30 @@ view model =
       visible (hasContent model.content)
     ]
   in
-    <div class={joinClasses classNames}>
-      <div class="panel">
-        {viewContent model model.content}
-      </div>
-    </div>
+    span [class (joinClasses classNames)] [
+      div [class "panel"] [
+        (viewContent model model.content)
+      ],
+      viewTabStrip model.content.conditions
+    ]
+
+tab : Msg -> String -> Html Msg
+tab msg title =
+  div [class "tab"] [
+    a [onClick msg] [text title]
+  ]
+
+viewTabStrip : Maybe Conditions -> Html Msg
+viewTabStrip maybeConditions =
+  case maybeConditions of
+    Just conditions ->
+      div [class "tabstrip"] [
+        tab (TagContentMsg CloseConditions) "Close",
+        tab (TagContentMsg (RefreshConditions conditions.key)) "Refresh"
+      ]
+
+    Nothing ->
+      div [] []
 
 viewContent : Model -> ContentModel -> Html Msg
 viewContent parentModel model =
@@ -35,10 +52,10 @@ viewContent parentModel model =
       conditions parentModel.dashboard.scale model.conditions
 
     Loading ->
-      <div class="spinner"></div>
+      div [class "spinner"] []
 
     Failed msg ->
-      <div class="error">{=msg}</div>
+      div [class "error"] [text msg]
 
 hasContent : ContentModel -> Bool
 hasContent model =
@@ -51,7 +68,6 @@ conditions scale c =
   case c of
     Just conditions ->
       makeTable
-        makeRow
         filterRow
         [conditions.display_location.full, conditions.weather]
         [
@@ -66,7 +82,7 @@ conditions scale c =
         ]
 
     Nothing ->
-      <div></div>
+      div [] []
 
 filterRow : Row -> Bool
 filterRow row =

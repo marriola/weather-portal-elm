@@ -15,6 +15,8 @@ type alias SearchResult = {
 }
 
 type alias Conditions = {
+  key : Int,
+
   display_location : DisplayLocation,
   weather : String,
   temp_f : Float,
@@ -112,6 +114,7 @@ displayLocation =
 currentObservation : Decoder Conditions
 currentObservation =
   decode Conditions
+    |> optional "key" int 0
     |> required "display_location" displayLocation
     |> required "weather" string
     |> required "temp_f" float

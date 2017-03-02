@@ -4,18 +4,31 @@ body {
   background-color: black;
   color: #ddd;
   margin: 0px;
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 10pt;
+}
+
+input[type='text'], button {
+  background-color: #111;
+  color: #ddd;
+  border: 1px solid lightgray;
+}
+
+input:focus, button:focus {
+  outline: none;
 }
 
 a {
+  cursor: pointer;
   color: #00dd00;
 }
 
 a:visited {
-  color: #dd00dd;
+  color: #00aaaa;
 }
 
 a:active {
-  color: #dd0000;
+  color: #00aa00;
 }
 
 .github {
@@ -28,10 +41,6 @@ a:active {
 
 .content {
   padding: 3px;
-}
-
-input, button {
-  color: black;
 }
 
 table .header {
@@ -65,7 +74,7 @@ table .header {
 
 .panel {
   display: inline-block;
-  background-color: #224;
+  background-color: rgb(72, 58, 38);
   margin: 3px;
   padding: 3px;
 
@@ -80,4 +89,24 @@ table .header {
 
 .hidden {
   display: none;
+}
+
+.content > .panel {
+  margin-right: 0px;
+}
+
+.tabstrip {
+  vertical-align: top;
+  display: inline-block;
+  padding-top: 3px;
+}
+
+.tabstrip .tab {
+  display: block;
+  vertical-align: top;
+  background-color: #444;
+  font-size: 8pt;
+  padding: 3px;
+  margin-left: 1px;
+  margin-bottom: 1px;
 }
