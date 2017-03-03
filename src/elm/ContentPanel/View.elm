@@ -9,11 +9,11 @@ import Util exposing (..)
 
 import Http exposing (..)
 import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a, tr)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onInput, onClick)
+
 
 view : Model -> Html Msg
 view model = ContentPanel.ViewMain.view model
+
 
 update : Msg -> Model -> ContentModel -> (ContentModel, Cmd Msg)
 update msg parentModel model =
@@ -22,7 +22,6 @@ update msg parentModel model =
       search parentModel model
 
     TagContentMsg (UpdateConditions key resp) ->
-
       updateConditions parentModel model key resp
 
     TagContentMsg CloseConditions ->
@@ -74,68 +73,52 @@ search parentModel model =
           status = Loading
         }, getConditions parentModel.dashboard.search)
 
-addKey : ContentModel -> ContentModel
-addKey model =
-  { model |
-    nextKey = model.nextKey + 1,
-    conditions = addKeyInternal model.nextKey model.conditions
-  }
 
-addKeyInternal : Int -> Maybe Conditions -> Maybe Conditions
-addKeyInternal key maybeConditions =
+addKey : ContentModel -> Maybe Conditions -> Maybe Conditions
+addKey model maybeConditions =
   case maybeConditions of
     Just conditions ->
-      Just { conditions | key = key }
+      Just { conditions | key = model.nextKey }
     Nothing ->
-      Nothing
+      maybeConditions
+
 
 updateConditions : Model -> ContentModel -> Maybe Int -> Result Http.Error WeatherResponse -> (ContentModel, Cmd Msg)
 updateConditions parentModel model maybeKey resp =
   case resp of
     Ok result ->
       let
-        addingNew =
-          case result.current_observation of
-            Just _ ->
-              case maybeKey of
-                Just _ ->
-                  False
-                Nothing ->
-                  True
-            Nothing ->
-              False
+        conditionsWithKey = addKey model result.current_observation
 
         newPlaces =
-          case result.current_observation of
+          case conditionsWithKey of
             Just conditions ->
               case maybeKey of
-                Just key ->
-                  refreshPlace model.places key conditions
-                Nothing ->
-                  model.places ++ [conditions]
-
+                Just key -> refreshPlace model.places key conditions
+                Nothing -> model.places ++ [conditions]
             Nothing ->
               model.places
 
         nextModel =
           { model |
               places = newPlaces,
-              conditions = result.current_observation,
+              conditions = conditionsWithKey,
               results = result.response.results,
               status = Loaded,
-              error = result.response.error
+              error = result.response.error,
+              nextKey = model.nextKey + 1
           }
+
       in
-        (if addingNew then
-          addKey nextModel
-        else
-          nextModel, Cmd.none)
+        (nextModel, Cmd.none)
+
     Err e ->
       ({ model |
         conditions = Nothing,
         results = Nothing,
         status = Failed (errorToString e)
       }, Cmd.none)
+
 
 updatePlaces : Maybe Int -> List Conditions -> Maybe Conditions -> List Conditions
 updatePlaces maybeKey places maybeResult =
@@ -151,20 +134,24 @@ updatePlaces maybeKey places maybeResult =
     Nothing ->
       places
 
+
 refreshPlace : List Conditions -> Int -> Conditions -> List Conditions
 refreshPlace places key conditions =
-  List.map (replacePlace key conditions) places
+  List.map (choosePlace key conditions) places
 
-replacePlace : Int -> Conditions -> Conditions -> Conditions
-replacePlace key conditions place =
-    if place.key == conditions.key then
+
+choosePlace : Int -> Conditions -> Conditions -> Conditions
+choosePlace key conditions place =
+    if place.key == key then
       conditions
     else
       place
 
+
 byName : String -> Conditions -> Bool
 byName name location =
   String.contains name location.display_location.city
+
 
 byLocation : (String, String, String) -> Conditions -> Bool
 byLocation (city, state, country) location =
@@ -173,9 +160,11 @@ byLocation (city, state, country) location =
   in
     (city, state, country) == (dl.city, dl.state, dl.country)
 
+
 byKey : Int -> Conditions -> Bool
 byKey key location =
   location.key == key
+
 
 findConditions : (Conditions -> Bool) -> List Conditions -> Maybe Conditions
 findConditions predicate places =
@@ -190,13 +179,16 @@ findConditions predicate places =
       [] ->
         Nothing
 
+
 refreshConditions : Int -> String -> Cmd Msg
 refreshConditions key place =
   getConditionsInternal (TagContentMsg << UpdateConditions (Just key)) place
 
+
 getConditions : String -> Cmd Msg
 getConditions place =
   getConditionsInternal (TagContentMsg << UpdateConditions Nothing) place
+
 
 getConditionsInternal : (Result Error WeatherResponse -> Msg) -> String -> Cmd Msg
 getConditionsInternal msg place =

@@ -1,11 +1,7 @@
 module App exposing (..)
 
 import Maybe exposing (..)
-import Http exposing (..)
-import Decoders.Conditions exposing (Conditions)
-
 import MainTypes exposing (..)
-import View exposing (view)
 import Dashboard.View
 import ContentPanel.View
 
