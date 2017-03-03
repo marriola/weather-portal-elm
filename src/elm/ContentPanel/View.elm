@@ -74,21 +74,30 @@ search parentModel model =
         }, getConditions parentModel.dashboard.search)
 
 
-addKey : ContentModel -> Maybe Conditions -> Maybe Conditions
+addKey : ContentModel -> Maybe Conditions -> (ContentModel, Maybe Conditions)
 addKey model maybeConditions =
-  case maybeConditions of
-    Just conditions ->
-      Just { conditions | key = model.nextKey }
-    Nothing ->
-      maybeConditions
+  let
+    conditionsWithKey = 
+      case maybeConditions of
+        Just conditions ->
+          Just { conditions | key = model.nextKey }
+        Nothing ->
+          maybeConditions
 
+    modelWithKey =
+      case maybeConditions of
+        Just _ -> { model | nextKey = model.nextKey + 1 }
+        Nothing -> model
+    
+  in
+    (modelWithKey, conditionsWithKey)
 
 updateConditions : Model -> ContentModel -> Maybe Int -> Result Http.Error WeatherResponse -> (ContentModel, Cmd Msg)
 updateConditions parentModel model maybeKey resp =
   case resp of
     Ok result ->
       let
-        conditionsWithKey = addKey model result.current_observation
+        (modelWithKey, conditionsWithKey) = addKey model result.current_observation
 
         newPlaces =
           case conditionsWithKey of
@@ -100,13 +109,12 @@ updateConditions parentModel model maybeKey resp =
               model.places
 
         nextModel =
-          { model |
+          { modelWithKey |
               places = newPlaces,
               conditions = conditionsWithKey,
               results = result.response.results,
               status = Loaded,
-              error = result.response.error,
-              nextKey = model.nextKey + 1
+              error = result.response.error
           }
 
       in
