@@ -1,6 +1,6 @@
 module SearchResults.ViewMain exposing (view)
 
-import Decoders.Conditions exposing (SearchResult)
+import Decoders.SearchResult exposing (SearchResult)
 import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)

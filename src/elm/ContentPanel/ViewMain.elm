@@ -1,7 +1,9 @@
 module ContentPanel.ViewMain exposing (view)
 
 import MainTypes exposing (..)
-import Decoders.Conditions exposing (Conditions, SearchResult, WeatherResponse)
+import Decoders.SearchResult exposing (SearchResult)
+import Decoders.Conditions exposing (Conditions)
+import Decoders.WeatherResponse exposing (WeatherResponse)
 
 import Html exposing (Html, Attribute, label, text, div, span, input, button, ul, li, a, tr)
 import Html.Attributes exposing (..)

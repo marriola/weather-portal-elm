@@ -2,7 +2,10 @@ module MainTypes exposing (..)
 
 import Http exposing (..)
 
-import Decoders.Conditions exposing (Conditions, SearchResult, WeatherResponse, WeatherResponseMain, WeatherError)
+import Decoders.SearchResult exposing (SearchResult)
+import Decoders.WeatherError exposing (WeatherError)
+import Decoders.Conditions exposing (Conditions)
+import Decoders.WeatherResponse exposing (WeatherResponse)
 
 type Status
   = Loaded

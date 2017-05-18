@@ -4,7 +4,8 @@ import ContentPanel.ViewMain
 
 import Weather
 import MainTypes exposing (..)
-import Decoders.Conditions exposing (WeatherResponse, Conditions, weatherResponse)
+import Decoders.Conditions exposing (Conditions)
+import Decoders.WeatherResponse exposing (WeatherResponse, weatherResponse)
 import Util exposing (..)
 
 import Http exposing (..)
