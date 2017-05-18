@@ -1,9 +1,18 @@
-module Dashboard.View exposing (view, update)
+module Dashboard.View exposing (init, view, update)
 
 import Dashboard.ViewMain
 import MainTypes exposing (..)
 import Decoders.Conditions exposing (Conditions)
 import Html exposing (Html)
+
+
+init : DashboardModel
+init =
+  {
+    search = "",
+    scale = US
+  }
+
 
 view : Model -> Html Msg
 view model = Dashboard.ViewMain.view model

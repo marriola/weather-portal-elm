@@ -1,25 +1,15 @@
 module App exposing (..)
 
-import Maybe exposing (..)
 import MainTypes exposing (..)
 import Dashboard.View
 import ContentPanel.View
 
+
 init : (Model, Cmd Msg)
 init =
     ( {
-      dashboard = {
-        search = "",
-        scale = US
-      },
-      content = {
-        status = Loaded,
-        places = [],
-        conditions = Nothing,
-        results = Nothing,
-        error = Nothing,
-        nextKey = 1
-      }
+      dashboard = Dashboard.View.init,
+      content = ContentPanel.View.init
     }, Cmd.none )
 
 
@@ -43,6 +33,7 @@ update msg model =
         finalModel = { primaryModel | content = newContent }
       in
         (finalModel, msgOut)
+
 
 subscriptions : Model -> Sub Msg
 subscriptions model =

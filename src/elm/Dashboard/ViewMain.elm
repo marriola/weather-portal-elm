@@ -19,7 +19,7 @@ view model =
       a [href "https://github.com/marriola/weather-portal-elm", class "github", target "_blank"] [],
 
       input [type_ "text", value model.dashboard.search, onInput (TagDashboardMsg << Change)] [],
-      button [type_ "button", onClick (TagContentMsg Search), style [("margin-left", "3px")]] [text "Search"],
+      button [type_ "button", onClick (TagContentMsg Search), class "margin-left-3"] [text "Search"],
       button [type_ "button", onClick (TagDashboardMsg Reset)] [text "Reset"],
 
       nameplates model.content.places

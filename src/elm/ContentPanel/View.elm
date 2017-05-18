@@ -1,4 +1,4 @@
-module ContentPanel.View exposing (view, update)
+module ContentPanel.View exposing (init, view, update)
 
 import ContentPanel.ViewMain
 
@@ -9,6 +9,18 @@ import Util exposing (..)
 
 import Http exposing (..)
 import Html exposing (Html, Attribute, label, text, div, input, button, ul, li, a, tr)
+
+
+init : ContentModel
+init = 
+  {
+    status = Loaded,
+    places = [],
+    conditions = Nothing,
+    results = Nothing,
+    error = Nothing,
+    nextKey = 1
+  }
 
 
 view : Model -> Html Msg
