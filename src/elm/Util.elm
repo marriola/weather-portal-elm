@@ -56,6 +56,21 @@ errorToString err =
     BadUrl msg ->
       msg
 
+selectScaleOrDefault : Scale -> (Scale -> String) -> Maybe Float -> Maybe Float -> String
+selectScaleOrDefault scale indicator metric us =
+  (case scale of
+    Metric ->
+      floatOrNA metric
+    US ->
+      floatOrNA us
+  ) ++ " " ++ indicator scale
+
+floatOrNA : Maybe Float -> String
+floatOrNA maybeF =
+  case maybeF of
+    Just f -> toString f
+    Nothing -> "NA"
+
 selectScale : Scale -> (Scale -> String) -> String -> String -> String
 selectScale scale indicator metric us =
   (case scale of

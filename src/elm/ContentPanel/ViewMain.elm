@@ -75,9 +75,9 @@ conditions scale c =
           ("Humidity", conditions.relative_humidity),
           ("Wind", (selectScale scale Indicators.wind (toString conditions.wind_kph) (toString conditions.wind_mph)) ++ " " ++ conditions.wind_dir),
           ("Dewpoint", (selectScale scale Indicators.degree (toString conditions.dewpoint_c) (toString conditions.dewpoint_f))),
-          ("Heat Index", (selectScale scale Indicators.degree conditions.heat_index_c conditions.heat_index_f)),
-          ("Wind Chill", (selectScale scale Indicators.degree conditions.windchill_c conditions.windchill_f)),
-          ("Feels Like", (selectScale scale Indicators.degree conditions.feelslike_c conditions.feelslike_f)),
+          ("Heat Index", (selectScaleOrDefault scale Indicators.degree conditions.heat_index_c conditions.heat_index_f)),
+          ("Wind Chill", (selectScaleOrDefault scale Indicators.degree conditions.windchill_c conditions.windchill_f)),
+          ("Feels Like", (selectScaleOrDefault scale Indicators.degree conditions.feelslike_c conditions.feelslike_f)),
           ("Visibility", (selectScale scale Indicators.distance conditions.visibility_km conditions.visibility_mi))
         ]
 

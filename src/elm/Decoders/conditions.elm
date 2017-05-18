@@ -1,7 +1,17 @@
 module Decoders.Conditions exposing (WeatherResponse, WeatherResponseMain, Conditions, SearchResult, WeatherError, weatherResponse)
 
-import Json.Decode exposing (Decoder, field, float, int, list, string, map, maybe, map2, map3, map4, map5, null, oneOf)
+import Json.Decode exposing (Decoder, field, oneOf, float, int, list, string, map, maybe, map2, map3, map4, map5, null, oneOf)
 import Json.Decode.Pipeline exposing (decode, required, optional)
+
+maybeFloat : Decoder (Maybe Float)
+maybeFloat =
+  map (\x -> Just x) float
+
+-- takes a string and converts it into a Maybe Int. the Wunderground API returns
+-- "NA" instead of null for some values, these are parsed to Nothing.
+stringToFloatDecoder : Decoder (Maybe Float)
+stringToFloatDecoder =
+  map (\x -> String.toFloat x |> Result.toMaybe) string
 
 type alias SearchResult = {
   name : String,
@@ -15,7 +25,7 @@ type alias SearchResult = {
 }
 
 type alias Conditions = {
-  key : Int,
+  key : Int, -- set by ContentPanel
 
   display_location : DisplayLocation,
   weather : String,
@@ -28,12 +38,12 @@ type alias Conditions = {
   pressure_mb : String,
   dewpoint_f : Float,
   dewpoint_c : Float,
-  heat_index_f : String,
-  heat_index_c : String,
-  windchill_f : String,
-  windchill_c : String,
-  feelslike_f : String,
-  feelslike_c : String,
+  heat_index_f : Maybe Float,
+  heat_index_c : Maybe Float,
+  windchill_f : Maybe Float,
+  windchill_c : Maybe Float,
+  feelslike_f : Maybe Float,
+  feelslike_c : Maybe Float,
   visibility_mi : String,
   visibility_km : String,
   uv : String,
@@ -113,30 +123,33 @@ displayLocation =
 
 currentObservation : Decoder Conditions
 currentObservation =
-  decode Conditions
-    |> optional "key" int 0
-    |> required "display_location" displayLocation
-    |> required "weather" string
-    |> required "temp_f" float
-    |> required "temp_c" float
-    |> required "relative_humidity" string
-    |> required "wind_dir" string
-    |> required "wind_mph" float
-    |> required "wind_kph" float
-    |> required "pressure_mb" string
-    |> required "dewpoint_f" float
-    |> required "dewpoint_c" float
-    |> required "heat_index_f" string
-    |> required "heat_index_c" string
-    |> required "windchill_f" string
-    |> required "windchill_c" string
-    |> required "feelslike_f" string
-    |> required "feelslike_c" string
-    |> required "visibility_mi" string
-    |> required "visibility_km" string
-    |> required "UV" string
-    |> required "precip_today_in" string
-    |> required "precip_today_metric" string
+  let
+    floatOrString = oneOf [ maybeFloat, stringToFloatDecoder ]
+  in
+    decode Conditions
+      |> optional "key" int 0
+      |> required "display_location" displayLocation
+      |> required "weather" string
+      |> required "temp_f" float
+      |> required "temp_c" float
+      |> required "relative_humidity" string
+      |> required "wind_dir" string
+      |> required "wind_mph" float
+      |> required "wind_kph" float
+      |> required "pressure_mb" string
+      |> required "dewpoint_f" float
+      |> required "dewpoint_c" float
+      |> required "heat_index_f" floatOrString
+      |> required "heat_index_c" floatOrString
+      |> required "windchill_f" floatOrString
+      |> required "windchill_c" floatOrString
+      |> required "feelslike_f" floatOrString
+      |> required "feelslike_c" floatOrString
+      |> required "visibility_mi" string
+      |> required "visibility_km" string
+      |> required "UV" string
+      |> required "precip_today_in" string
+      |> required "precip_today_metric" string
 
 decodeConditions : Decoder Conditions
 decodeConditions = field "current_observation" currentObservation
