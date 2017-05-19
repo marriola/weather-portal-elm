@@ -5,6 +5,7 @@ import Http exposing (..)
 import Maybe exposing (..)
 import List
 import String
+import Task
 
 joinClasses : List (Maybe String) -> String
 joinClasses list =
@@ -87,3 +88,8 @@ choose condition s =
 orNothing : Bool -> String -> Maybe String
 orNothing condition s =
   if condition then Nothing else Just s
+
+send : msg -> Cmd msg
+send msg =
+  Task.succeed msg
+  |> Task.perform identity

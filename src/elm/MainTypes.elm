@@ -14,6 +14,7 @@ type Status
 
 type DashboardMsg
   = Change String
+  | KeyDown Int
   | SelectScale Scale
   | Reset
 
